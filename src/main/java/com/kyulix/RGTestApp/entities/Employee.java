@@ -7,12 +7,11 @@ import javax.persistence.*;
 @Entity
 @Data
 @ToString
-@AllArgsConstructor
-@NoArgsConstructor
+@EqualsAndHashCode
 public class Employee {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
     @ToString.Exclude
     private int id;
@@ -43,11 +42,18 @@ public class Employee {
     @Getter
     @Setter
     @NonNull
-    private String isFired;
+    private boolean active;
 
     @Getter
     @Setter
     @ManyToOne
-    @NonNull
     private Office workingOffice;
+
+    public Employee(String firstName, String lastName, String position) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.position = position;
+        this.active = true;
+    }
+
 }
