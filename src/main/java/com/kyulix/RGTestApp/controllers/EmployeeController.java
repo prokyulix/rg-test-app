@@ -8,12 +8,18 @@ import com.kyulix.RGTestApp.repositories.OfficeRepository;
 import com.kyulix.RGTestApp.resources.EmployeeResource;
 import com.kyulix.RGTestApp.resources.ResponseMessageResource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityLinks;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.LinkBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/employees")
@@ -25,10 +31,23 @@ public class EmployeeController {
     @Autowired
     private OfficeRepository officeRepository;
 
-    @RequestMapping
+    @Autowired
+    private EntityLinks entityLinks;
+
+    @RequestMapping("/showAll")
     public HttpEntity<EmployeeResource> showAll() {
 
         EmployeeResource employeeResource = new EmployeeResource(employeeRepository.findAll());
+//        employeeResource.add(linkTo(EmployeeController.class).withSelfRel());
+
+        return new ResponseEntity(employeeResource, HttpStatus.OK);
+    }
+
+    @RequestMapping("/show")
+    public HttpEntity<EmployeeResource> show(@RequestParam(value = "id", required = true) int id) {
+
+        EmployeeResource employeeResource = new EmployeeResource(employeeRepository.findById(id).get());
+//        employeeResource.add(linkTo(EmployeeController.class).withSelfRel());
 
         return new ResponseEntity(employeeResource, HttpStatus.OK);
     }

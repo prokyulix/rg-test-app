@@ -25,10 +25,18 @@ public class OfficeController {
     @Autowired
     private EmployeeRepository employeeRepository;
 
-    @RequestMapping
+    @RequestMapping("/showAll")
     public HttpEntity<OfficeResource> showAll() {
 
         OfficeResource officeResource = new OfficeResource(officeRepository.findAll());
+
+        return new ResponseEntity(officeResource, HttpStatus.OK);
+    }
+
+    @RequestMapping("/show")
+    public HttpEntity<OfficeResource> show(@RequestParam(value = "id", required = true) int id) {
+
+        OfficeResource officeResource = new OfficeResource(officeRepository.findById(id).get());
 
         return new ResponseEntity(officeResource, HttpStatus.OK);
     }

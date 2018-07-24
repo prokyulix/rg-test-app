@@ -5,17 +5,26 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kyulix.RGTestApp.entities.Office;
 import org.springframework.hateoas.ResourceSupport;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class OfficeResource extends ResourceSupport {
 
     @JsonProperty("offices")
-    private Iterable<Office> offices;
+    private List<Office> offices;
 
     @JsonCreator
-    public OfficeResource(Iterable<Office> offices) {
+    public OfficeResource(List<Office> offices) {
         this.offices = offices;
     }
 
-    public Iterable<Office> getOffices() {
+    @JsonCreator
+    public OfficeResource(Office office) {
+        this.offices = new ArrayList<>();
+        this.offices.add(office);
+    }
+
+    public List<Office> getOffices() {
         return this.offices;
     }
 }
