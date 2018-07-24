@@ -4,32 +4,29 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.hateoas.ResourceSupport;
 
-/*
-    В этом классе будет всего лишь два кода (состояния):
-    1 -- успешно
-    2 -- отклонено
-
-    По-хорошему нужно ввести больше состояний, но это лишнее в данном случае
- */
 public class ResponseMessageResource extends ResourceSupport {
 
     @JsonProperty("code")
     private int responseCode;
 
-    @JsonProperty("message")
-    private String responseMessage;
+    @JsonProperty("debug_message")
+    private String debugMessage;
 
     @JsonCreator
-    public ResponseMessageResource(int responseCode, String responseMessage) {
+    public ResponseMessageResource(int responseCode) {
         this.responseCode = responseCode;
-        this.responseMessage = responseMessage;
+    }
+
+    public ResponseMessageResource(int responseCode, String debugMessage) {
+        this.responseCode = responseCode;
+        this.debugMessage = debugMessage;
     }
 
     public int getResponseCode() {
-        return responseCode;
+        return this.responseCode;
     }
 
-    public String getResponseMessage() {
-        return responseMessage;
+    public String getDebugMessage() {
+        return this.debugMessage;
     }
 }

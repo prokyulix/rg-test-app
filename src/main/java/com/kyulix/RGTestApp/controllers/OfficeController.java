@@ -1,5 +1,6 @@
 package com.kyulix.RGTestApp.controllers;
 
+import com.kyulix.RGTestApp.constants.OfficeResponseCodes;
 import com.kyulix.RGTestApp.entities.Employee;
 import com.kyulix.RGTestApp.entities.Office;
 import com.kyulix.RGTestApp.repositories.EmployeeRepository;
@@ -40,13 +41,12 @@ public class OfficeController {
         ResponseMessageResource responseMessage;
 
         if ((officeRepository.existsByName(name)) || (officeRepository.existsByAddress(address)))
-            responseMessage = new ResponseMessageResource(1, "office already exists");
+            responseMessage = new ResponseMessageResource(OfficeResponseCodes.ALREADY_EXISTS);
         else {
             Office officeToAppend = new Office(name, address);
             officeRepository.save(officeToAppend);
 
-            responseMessage = new ResponseMessageResource(1,
-                    "added office: " + officeToAppend.toString());
+            responseMessage = new ResponseMessageResource(OfficeResponseCodes.SUCCESSFUL);
         }
 
         return new ResponseEntity(responseMessage, HttpStatus.OK);
@@ -72,10 +72,9 @@ public class OfficeController {
 
             officeRepository.save(officeToChange);
 
-            responseMessage = new ResponseMessageResource(1,
-                    String.format("%s -> %s", oldOfficeString, officeToChange.toString()));
+            responseMessage = new ResponseMessageResource(OfficeResponseCodes.SUCCESSFUL);
         } else
-            responseMessage = new ResponseMessageResource(4, String.format("office with id %d not exists", id));
+            responseMessage = new ResponseMessageResource(OfficeResponseCodes.NOT_EXISTS);
 
         return new ResponseEntity(responseMessage, HttpStatus.OK);
     }
@@ -103,9 +102,9 @@ public class OfficeController {
                 }
             }
 
-            responseMessage = new ResponseMessageResource(1, String.format("employees accepted to office %d", id));
+            responseMessage = new ResponseMessageResource(OfficeResponseCodes.SUCCESSFUL);
         } else
-            responseMessage = new ResponseMessageResource(4, String.format("office with id %d not exists", id));
+            responseMessage = new ResponseMessageResource(OfficeResponseCodes.NOT_EXISTS);
 
         return new ResponseEntity(responseMessage, HttpStatus.OK);
     }
@@ -127,9 +126,9 @@ public class OfficeController {
                 employeeRepository.save(employee);
             }
 
-            responseMessage = new ResponseMessageResource(1, String.format("office with id %d closed", id));
+            responseMessage = new ResponseMessageResource(OfficeResponseCodes.SUCCESSFUL);
         } else
-            responseMessage = new ResponseMessageResource(4, String.format("office with id %d not exists", id));
+            responseMessage = new ResponseMessageResource(OfficeResponseCodes.NOT_EXISTS);
 
         return new ResponseEntity(responseMessage, HttpStatus.OK);
     }

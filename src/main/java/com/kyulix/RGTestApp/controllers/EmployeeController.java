@@ -6,6 +6,7 @@ import com.kyulix.RGTestApp.repositories.EmployeeRepository;
 import com.kyulix.RGTestApp.repositories.OfficeRepository;
 import com.kyulix.RGTestApp.resources.EmployeeResource;
 import com.kyulix.RGTestApp.resources.ResponseMessageResource;
+import com.kyulix.RGTestApp.constants.EmployeeResponseCodes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -42,18 +43,21 @@ public class EmployeeController {
 
         ResponseMessageResource responseMessage;
 
-        Employee employeeToAppend = new Employee(firstName, lastName, position);
+        try {
+            Employee employeeToAppend = new Employee(firstName, lastName, position);
 
-        if (eMail != null)
-            employeeToAppend.setEMail(eMail);
+            if (eMail != null)
+                employeeToAppend.setEMail(eMail);
 
-        if (phoneNumber != null)
-            employeeToAppend.setPhoneNumber(phoneNumber);
+            if (phoneNumber != null)
+                employeeToAppend.setPhoneNumber(phoneNumber);
 
-        employeeRepository.save(employeeToAppend);
+            employeeRepository.save(employeeToAppend);
 
-        responseMessage = new ResponseMessageResource(1,
-                String.format("added employee: %s", employeeToAppend.toString()));
+            responseMessage = new ResponseMessageResource(EmployeeResponseCodes.SUCCESSFUL);
+        } catch (Exception e) {
+            responseMessage = new ResponseMessageResource(EmployeeResponseCodes.FAILED, e.getMessage());
+        }
 
         return new ResponseEntity(responseMessage, HttpStatus.OK);
     }
@@ -71,30 +75,33 @@ public class EmployeeController {
 
         if (employeeRepository.existsById(id)) {
 
-            Employee employeeToChange = employeeRepository.findById(id).get();
-            String oldEmployeeString = employeeToChange.toString();
+            try {
+                Employee employeeToChange = employeeRepository.findById(id).get();
+                String oldEmployeeString = employeeToChange.toString();
 
-            if (firstName != null)
-                employeeToChange.setFirstName(firstName);
+                if (firstName != null)
+                    employeeToChange.setFirstName(firstName);
 
-            if (lastName != null)
-                employeeToChange.setLastName(lastName);
+                if (lastName != null)
+                    employeeToChange.setLastName(lastName);
 
-            if (eMail != null)
-                employeeToChange.setEMail(eMail);
+                if (eMail != null)
+                    employeeToChange.setEMail(eMail);
 
-            if (phoneNumber != null)
-                employeeToChange.setPhoneNumber(phoneNumber);
+                if (phoneNumber != null)
+                    employeeToChange.setPhoneNumber(phoneNumber);
 
-            if (position != null)
-                employeeToChange.setPosition(position);
+                if (position != null)
+                    employeeToChange.setPosition(position);
 
-            employeeRepository.save(employeeToChange);
+                employeeRepository.save(employeeToChange);
 
-            responseMessage = new ResponseMessageResource(1,
-                    String.format("%s -> %s", oldEmployeeString, employeeToChange.toString()));
+                responseMessage = new ResponseMessageResource(EmployeeResponseCodes.SUCCESSFUL);
+            } catch (Exception e) {
+                responseMessage = new ResponseMessageResource(EmployeeResponseCodes.FAILED, e.getMessage());
+            }
         } else
-            responseMessage = new ResponseMessageResource(4, String.format("employee with id %d not exists", id));
+            responseMessage = new ResponseMessageResource(EmployeeResponseCodes.NOT_EXISTS);
 
         return new ResponseEntity(responseMessage, HttpStatus.OK);
     }
@@ -107,18 +114,19 @@ public class EmployeeController {
         ResponseMessageResource responseMessage;
 
         if ((employeeRepository.existsById(id)) && (officeRepository.existsById(officeId))) {
+            try {
+                Employee employeeToChange = employeeRepository.findById(id).get();
+                Office officeToBind = officeRepository.findById(officeId).get();
 
-            Employee employeeToChange = employeeRepository.findById(id).get();
-            Office officeToBind = officeRepository.findById(officeId).get();
+                employeeToChange.setWorkingOffice(officeToBind);
 
-            employeeToChange.setWorkingOffice(officeToBind);
-
-            employeeRepository.save(employeeToChange);
-
-            responseMessage = new ResponseMessageResource(1,
-                    String.format("%s -> %s", employeeToChange.toString(), officeToBind.toString()));
+                employeeRepository.save(employeeToChange);
+                responseMessage = new ResponseMessageResource(EmployeeResponseCodes.SUCCESSFUL);
+            } catch (Exception e) {
+                responseMessage = new ResponseMessageResource(EmployeeResponseCodes.FAILED, e.getMessage());
+            }
         } else
-            responseMessage = new ResponseMessageResource(4, "employee or office not exists");
+            responseMessage = new ResponseMessageResource(EmployeeResponseCodes.NOT_EXISTS);
 
         return new ResponseEntity(responseMessage, HttpStatus.OK);
     }
@@ -138,17 +146,19 @@ public class EmployeeController {
     protected ResponseMessageResource changeEmployeeActiveState(int employeeId, boolean activeState) {
 
         if (employeeRepository.existsById(employeeId)) {
+            try {
+                Employee employeeToDismiss = employeeRepository.findById(employeeId).get();
 
-            Employee employeeToDismiss = employeeRepository.findById(employeeId).get();
-            employeeToDismiss.setActive(activeState);
+                employeeToDismiss.setActive(activeState);
 
-            String actionName = activeState ? "returned to work" : "is fired";
+                employeeRepository.save(employeeToDismiss);
 
-            employeeRepository.save(employeeToDismiss);
-
-            return new ResponseMessageResource(1, String.format("Employee with id %d %s", employeeId, actionName));
+                return new ResponseMessageResource(EmployeeResponseCodes.SUCCESSFUL);
+            } catch (Exception e) {
+                return new ResponseMessageResource(EmployeeResponseCodes.FAILED, e.getMessage());
+            }
         } else
-            return new ResponseMessageResource(4, String.format("Employee with id %d not exists", employeeId));
+            return new ResponseMessageResource(EmployeeResponseCodes.NOT_EXISTS);
     }
 
 }
