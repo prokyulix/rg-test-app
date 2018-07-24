@@ -8,9 +8,7 @@ import com.kyulix.RGTestApp.repositories.OfficeRepository;
 import com.kyulix.RGTestApp.resources.EmployeeResource;
 import com.kyulix.RGTestApp.resources.ResponseMessageResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.EntityLinks;
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.LinkBuilder;
+import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +20,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 @RestController
+@ExposesResourceFor(Employee.class)
 @RequestMapping("/employees")
 public class EmployeeController {
 
@@ -31,14 +30,11 @@ public class EmployeeController {
     @Autowired
     private OfficeRepository officeRepository;
 
-    @Autowired
-    private EntityLinks entityLinks;
-
     @RequestMapping("/showAll")
     public HttpEntity<EmployeeResource> showAll() {
 
         EmployeeResource employeeResource = new EmployeeResource(employeeRepository.findAll());
-//        employeeResource.add(linkTo(EmployeeController.class).withSelfRel());
+        employeeResource.add(linkTo(methodOn(EmployeeController.class).showAll()).withSelfRel());
 
         return new ResponseEntity(employeeResource, HttpStatus.OK);
     }
@@ -47,7 +43,7 @@ public class EmployeeController {
     public HttpEntity<EmployeeResource> show(@RequestParam(value = "id", required = true) int id) {
 
         EmployeeResource employeeResource = new EmployeeResource(employeeRepository.findById(id).get());
-//        employeeResource.add(linkTo(EmployeeController.class).withSelfRel());
+        employeeResource.add(linkTo(methodOn(EmployeeController.class).show(id)).withSelfRel());
 
         return new ResponseEntity(employeeResource, HttpStatus.OK);
     }
@@ -74,10 +70,15 @@ public class EmployeeController {
             employeeRepository.save(employeeToAppend);
 
             responseMessage = new ResponseMessageResource(CommonResponseCodes.SUCCESSFUL);
+            responseMessage.add(linkTo(methodOn(EmployeeController.class)
+                    .show(employeeToAppend.getId())).withRel("result"));
             responseMessage.addDebugObject(employeeToAppend);
         } catch (Exception e) {
             responseMessage = new ResponseMessageResource(CommonResponseCodes.FAILED, e.getMessage());
         }
+
+        responseMessage.add(linkTo(methodOn(EmployeeController.class)
+                .addEmployee(firstName, lastName, eMail, phoneNumber, position)).withSelfRel());
 
         return new ResponseEntity(responseMessage, HttpStatus.OK);
     }
@@ -115,12 +116,17 @@ public class EmployeeController {
                 employeeRepository.save(employeeToChange);
 
                 responseMessage = new ResponseMessageResource(CommonResponseCodes.SUCCESSFUL);
+                responseMessage.add(linkTo(methodOn(EmployeeController.class)
+                        .show(id)).withRel("result"));
                 responseMessage.addDebugObject(employeeToChange);
             } catch (Exception e) {
                 responseMessage = new ResponseMessageResource(CommonResponseCodes.FAILED, e.getMessage());
             }
         } else
             responseMessage = new ResponseMessageResource(CommonResponseCodes.NOT_EXISTS);
+
+        responseMessage.add(linkTo(methodOn(EmployeeController.class)
+                .changeEmployee(id, firstName, lastName, eMail, phoneNumber, position)).withSelfRel());
 
         return new ResponseEntity(responseMessage, HttpStatus.OK);
     }
@@ -138,10 +144,10 @@ public class EmployeeController {
                 Office officeToBind = officeRepository.findById(officeId).get();
 
                 employeeToChange.setWorkingOffice(officeToBind);
-
                 employeeRepository.save(employeeToChange);
 
                 responseMessage = new ResponseMessageResource(CommonResponseCodes.SUCCESSFUL);
+                responseMessage.add(linkTo(methodOn(EmployeeController.class).show(id)).withRel("result"));
                 responseMessage.addDebugObject(employeeToChange);
                 responseMessage.addDebugObject(officeToBind);
             } catch (Exception e) {
@@ -149,6 +155,9 @@ public class EmployeeController {
             }
         } else
             responseMessage = new ResponseMessageResource(CommonResponseCodes.NOT_EXISTS);
+
+        responseMessage.add(linkTo(methodOn(EmployeeController.class)
+                .bindEmployeeToOffice(id, officeId)).withSelfRel());
 
         return new ResponseEntity(responseMessage, HttpStatus.OK);
     }
@@ -167,22 +176,28 @@ public class EmployeeController {
 
     protected ResponseMessageResource changeEmployeeActiveState(int employeeId, boolean activeState) {
 
+        ResponseMessageResource responseMessage;
+
         if (employeeRepository.existsById(employeeId)) {
             try {
-                Employee employeeToDismiss = employeeRepository.findById(employeeId).get();
+                Employee employee = employeeRepository.findById(employeeId).get();
+                employee.setActive(activeState);
+                employeeRepository.save(employee);
 
-                employeeToDismiss.setActive(activeState);
-
-                employeeRepository.save(employeeToDismiss);
-
-                ResponseMessageResource responseMessage = new ResponseMessageResource(CommonResponseCodes.SUCCESSFUL);
-                responseMessage.addDebugObject(employeeToDismiss);
-
-                return responseMessage;
+                responseMessage = new ResponseMessageResource(CommonResponseCodes.SUCCESSFUL);
+                responseMessage.addDebugObject(employee);
+                responseMessage.add(linkTo(methodOn(EmployeeController.class).show(employeeId)).withRel("result"));
             } catch (Exception e) {
-                return new ResponseMessageResource(CommonResponseCodes.FAILED, e.getMessage());
+                responseMessage = new ResponseMessageResource(CommonResponseCodes.FAILED, e.getMessage());
             }
         } else
-            return new ResponseMessageResource(CommonResponseCodes.NOT_EXISTS);
+            responseMessage = new ResponseMessageResource(CommonResponseCodes.NOT_EXISTS);
+
+        if (activeState)
+            responseMessage.add(linkTo(methodOn(EmployeeController.class).returnEmployee(employeeId)).withSelfRel());
+        else
+            responseMessage.add(linkTo(methodOn(EmployeeController.class).dismissEmployee(employeeId)).withSelfRel());
+
+        return responseMessage;
     }
 }

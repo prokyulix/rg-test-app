@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+
 @RestController
 @RequestMapping("/offices")
 public class OfficeController {
@@ -29,6 +32,7 @@ public class OfficeController {
     public HttpEntity<OfficeResource> showAll() {
 
         OfficeResource officeResource = new OfficeResource(officeRepository.findAll());
+        officeResource.add(linkTo(methodOn(OfficeController.class).showAll()).withSelfRel());
 
         return new ResponseEntity(officeResource, HttpStatus.OK);
     }
@@ -37,6 +41,7 @@ public class OfficeController {
     public HttpEntity<OfficeResource> show(@RequestParam(value = "id", required = true) int id) {
 
         OfficeResource officeResource = new OfficeResource(officeRepository.findById(id).get());
+        officeResource.add(linkTo(methodOn(OfficeController.class).show(id)).withSelfRel());
 
         return new ResponseEntity(officeResource, HttpStatus.OK);
     }
@@ -57,10 +62,13 @@ public class OfficeController {
 
                 responseMessage = new ResponseMessageResource(OfficeResponseCodes.SUCCESSFUL);
                 responseMessage.addDebugObject(officeToAppend);
+                responseMessage.add(linkTo(methodOn(OfficeController.class).show(officeToAppend.getId())).withRel("result"));
             } catch (Exception e) {
                 responseMessage = new ResponseMessageResource(OfficeResponseCodes.FAILED, e.getMessage());
             }
         }
+
+        responseMessage.add(linkTo(methodOn(OfficeController.class).addOffice(name, address)).withSelfRel());
 
         return new ResponseEntity(responseMessage, HttpStatus.OK);
     }
@@ -86,11 +94,14 @@ public class OfficeController {
 
                 responseMessage = new ResponseMessageResource(OfficeResponseCodes.SUCCESSFUL);
                 responseMessage.addDebugObject(officeToChange);
+                responseMessage.add(linkTo(methodOn(OfficeController.class).show(id)).withRel("result"));
             } catch (Exception e) {
                 responseMessage = new ResponseMessageResource(OfficeResponseCodes.FAILED, e.getMessage());
             }
         } else
             responseMessage = new ResponseMessageResource(OfficeResponseCodes.NOT_EXISTS);
+
+        responseMessage.add(linkTo(methodOn(OfficeController.class).changeOffice(id, name, address)).withSelfRel());
 
         return new ResponseEntity(responseMessage, HttpStatus.OK);
     }
@@ -108,6 +119,7 @@ public class OfficeController {
 
                 responseMessage = new ResponseMessageResource(OfficeResponseCodes.SUCCESSFUL);
                 responseMessage.addDebugObject(office);
+                responseMessage.add(linkTo(methodOn(OfficeController.class).show(id)).withRel("result"));
 
                 for (String employeeId : employeesId.split(",")) {
                     if (employeeRepository.existsById(Integer.parseInt(employeeId))) {
@@ -123,6 +135,8 @@ public class OfficeController {
             }
         } else
             responseMessage = new ResponseMessageResource(OfficeResponseCodes.NOT_EXISTS);
+
+        responseMessage.add(linkTo(methodOn(OfficeController.class).acceptEmployees(id, employeesId)).withSelfRel());
 
         return new ResponseEntity(responseMessage, HttpStatus.OK);
     }
@@ -140,6 +154,7 @@ public class OfficeController {
 
                 responseMessage = new ResponseMessageResource(OfficeResponseCodes.SUCCESSFUL);
                 responseMessage.addDebugObject(officeToClose);
+                responseMessage.add(linkTo(methodOn(OfficeController.class).show(id)).withRel("result"));
 
                 for (Employee employee : employeeRepository.getByWorkingOffice(officeToClose)) {
                     employee.setActive(false);
@@ -152,6 +167,8 @@ public class OfficeController {
             }
         } else
             responseMessage = new ResponseMessageResource(OfficeResponseCodes.NOT_EXISTS);
+
+        responseMessage.add(linkTo(methodOn(OfficeController.class).closeOffice(id)).withSelfRel());
 
         return new ResponseEntity(responseMessage, HttpStatus.OK);
     }
