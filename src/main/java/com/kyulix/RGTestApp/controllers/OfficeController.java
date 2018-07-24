@@ -43,10 +43,15 @@ public class OfficeController {
         if ((officeRepository.existsByName(name)) || (officeRepository.existsByAddress(address)))
             responseMessage = new ResponseMessageResource(OfficeResponseCodes.ALREADY_EXISTS);
         else {
-            Office officeToAppend = new Office(name, address);
-            officeRepository.save(officeToAppend);
+            try {
+                Office officeToAppend = new Office(name, address);
+                officeRepository.save(officeToAppend);
 
-            responseMessage = new ResponseMessageResource(OfficeResponseCodes.SUCCESSFUL);
+                responseMessage = new ResponseMessageResource(OfficeResponseCodes.SUCCESSFUL);
+                responseMessage.addDebugObject(officeToAppend);
+            } catch (Exception e) {
+                responseMessage = new ResponseMessageResource(OfficeResponseCodes.FAILED, e.getMessage());
+            }
         }
 
         return new ResponseEntity(responseMessage, HttpStatus.OK);
@@ -60,19 +65,22 @@ public class OfficeController {
         ResponseMessageResource responseMessage;
 
         if (officeRepository.existsById(id)) {
+            try {
+                Office officeToChange = officeRepository.findById(id).get();
 
-            Office officeToChange = officeRepository.findById(id).get();
-            String oldOfficeString = officeToChange.toString();
+                if (name != null)
+                    officeToChange.setName(name);
 
-            if (name != null)
-                officeToChange.setName(name);
+                if (address != null)
+                    officeToChange.setAddress(address);
 
-            if (address != null)
-                officeToChange.setAddress(address);
+                officeRepository.save(officeToChange);
 
-            officeRepository.save(officeToChange);
-
-            responseMessage = new ResponseMessageResource(OfficeResponseCodes.SUCCESSFUL);
+                responseMessage = new ResponseMessageResource(OfficeResponseCodes.SUCCESSFUL);
+                responseMessage.addDebugObject(officeToChange);
+            } catch (Exception e) {
+                responseMessage = new ResponseMessageResource(OfficeResponseCodes.FAILED, e.getMessage());
+            }
         } else
             responseMessage = new ResponseMessageResource(OfficeResponseCodes.NOT_EXISTS);
 
@@ -87,22 +95,24 @@ public class OfficeController {
         ResponseMessageResource responseMessage;
 
         if (officeRepository.existsById(id)) {
+            try {
+                Office office = officeRepository.findById(id).get();
 
-            Office office = officeRepository.findById(id).get();
+                responseMessage = new ResponseMessageResource(OfficeResponseCodes.SUCCESSFUL);
+                responseMessage.addDebugObject(office);
 
-            String[] employeesToAcceptArray = employeesId.split(",");
+                for (String employeeId : employeesId.split(",")) {
+                    if (employeeRepository.existsById(Integer.parseInt(employeeId))) {
+                        Employee employeeToAccept = employeeRepository.findById(Integer.parseInt(employeeId)).get();
+                        employeeToAccept.setWorkingOffice(office);
+                        employeeRepository.save(employeeToAccept);
 
-            for (String employeeId : employeesToAcceptArray) {
-
-                if (employeeRepository.existsById(Integer.parseInt(employeeId))) {
-
-                    Employee employeeToAccept = employeeRepository.findById(Integer.parseInt(employeeId)).get();
-                    employeeToAccept.setWorkingOffice(office);
-                    employeeRepository.save(employeeToAccept);
+                        responseMessage.addDebugObject(employeeToAccept);
+                    }
                 }
+            } catch (Exception e) {
+                responseMessage = new ResponseMessageResource(OfficeResponseCodes.FAILED, e.getMessage());
             }
-
-            responseMessage = new ResponseMessageResource(OfficeResponseCodes.SUCCESSFUL);
         } else
             responseMessage = new ResponseMessageResource(OfficeResponseCodes.NOT_EXISTS);
 
@@ -115,18 +125,23 @@ public class OfficeController {
         ResponseMessageResource responseMessage;
 
         if (officeRepository.existsById(id)) {
+            try {
+                Office officeToClose = officeRepository.findById(id).get();
+                officeToClose.setActive(false);
+                officeRepository.save(officeToClose);
 
-            Office officeToClose = officeRepository.findById(id).get();
-            officeToClose.setActive(false);
-            officeRepository.save(officeToClose);
+                responseMessage = new ResponseMessageResource(OfficeResponseCodes.SUCCESSFUL);
+                responseMessage.addDebugObject(officeToClose);
 
-            for (Employee employee : employeeRepository.getByWorkingOffice(officeToClose)) {
+                for (Employee employee : employeeRepository.getByWorkingOffice(officeToClose)) {
+                    employee.setActive(false);
+                    employeeRepository.save(employee);
 
-                employee.setActive(false);
-                employeeRepository.save(employee);
+                    responseMessage.addDebugObject(employee);
+                }
+            } catch (Exception e) {
+                responseMessage = new ResponseMessageResource(OfficeResponseCodes.FAILED, e.getMessage());
             }
-
-            responseMessage = new ResponseMessageResource(OfficeResponseCodes.SUCCESSFUL);
         } else
             responseMessage = new ResponseMessageResource(OfficeResponseCodes.NOT_EXISTS);
 

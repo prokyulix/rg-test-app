@@ -55,6 +55,7 @@ public class EmployeeController {
             employeeRepository.save(employeeToAppend);
 
             responseMessage = new ResponseMessageResource(EmployeeResponseCodes.SUCCESSFUL);
+            responseMessage.addDebugObject(employeeToAppend);
         } catch (Exception e) {
             responseMessage = new ResponseMessageResource(EmployeeResponseCodes.FAILED, e.getMessage());
         }
@@ -74,10 +75,8 @@ public class EmployeeController {
         ResponseMessageResource responseMessage;
 
         if (employeeRepository.existsById(id)) {
-
             try {
                 Employee employeeToChange = employeeRepository.findById(id).get();
-                String oldEmployeeString = employeeToChange.toString();
 
                 if (firstName != null)
                     employeeToChange.setFirstName(firstName);
@@ -97,6 +96,7 @@ public class EmployeeController {
                 employeeRepository.save(employeeToChange);
 
                 responseMessage = new ResponseMessageResource(EmployeeResponseCodes.SUCCESSFUL);
+                responseMessage.addDebugObject(employeeToChange);
             } catch (Exception e) {
                 responseMessage = new ResponseMessageResource(EmployeeResponseCodes.FAILED, e.getMessage());
             }
@@ -121,11 +121,18 @@ public class EmployeeController {
                 employeeToChange.setWorkingOffice(officeToBind);
 
                 employeeRepository.save(employeeToChange);
+
                 responseMessage = new ResponseMessageResource(EmployeeResponseCodes.SUCCESSFUL);
+                responseMessage.addDebugObject(employeeToChange);
+                responseMessage.addDebugObject(officeToBind);
             } catch (Exception e) {
                 responseMessage = new ResponseMessageResource(EmployeeResponseCodes.FAILED, e.getMessage());
             }
         } else
+            /*
+              Здесь по-хорошему нужно что-то придумать, чтобы не возвращать EmployeeResponseCodes.NOT_EXISTS
+              в случае отсутствия офиса.
+             */
             responseMessage = new ResponseMessageResource(EmployeeResponseCodes.NOT_EXISTS);
 
         return new ResponseEntity(responseMessage, HttpStatus.OK);
@@ -153,12 +160,14 @@ public class EmployeeController {
 
                 employeeRepository.save(employeeToDismiss);
 
-                return new ResponseMessageResource(EmployeeResponseCodes.SUCCESSFUL);
+                ResponseMessageResource responseMessage = new ResponseMessageResource(EmployeeResponseCodes.SUCCESSFUL);
+                responseMessage.addDebugObject(employeeToDismiss);
+
+                return responseMessage;
             } catch (Exception e) {
                 return new ResponseMessageResource(EmployeeResponseCodes.FAILED, e.getMessage());
             }
         } else
             return new ResponseMessageResource(EmployeeResponseCodes.NOT_EXISTS);
     }
-
 }
