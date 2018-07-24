@@ -1,12 +1,12 @@
 package com.kyulix.RGTestApp.controllers;
 
+import com.kyulix.RGTestApp.constants.CommonResponseCodes;
 import com.kyulix.RGTestApp.entities.Employee;
 import com.kyulix.RGTestApp.entities.Office;
 import com.kyulix.RGTestApp.repositories.EmployeeRepository;
 import com.kyulix.RGTestApp.repositories.OfficeRepository;
 import com.kyulix.RGTestApp.resources.EmployeeResource;
 import com.kyulix.RGTestApp.resources.ResponseMessageResource;
-import com.kyulix.RGTestApp.constants.EmployeeResponseCodes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -54,10 +54,10 @@ public class EmployeeController {
 
             employeeRepository.save(employeeToAppend);
 
-            responseMessage = new ResponseMessageResource(EmployeeResponseCodes.SUCCESSFUL);
+            responseMessage = new ResponseMessageResource(CommonResponseCodes.SUCCESSFUL);
             responseMessage.addDebugObject(employeeToAppend);
         } catch (Exception e) {
-            responseMessage = new ResponseMessageResource(EmployeeResponseCodes.FAILED, e.getMessage());
+            responseMessage = new ResponseMessageResource(CommonResponseCodes.FAILED, e.getMessage());
         }
 
         return new ResponseEntity(responseMessage, HttpStatus.OK);
@@ -95,13 +95,13 @@ public class EmployeeController {
 
                 employeeRepository.save(employeeToChange);
 
-                responseMessage = new ResponseMessageResource(EmployeeResponseCodes.SUCCESSFUL);
+                responseMessage = new ResponseMessageResource(CommonResponseCodes.SUCCESSFUL);
                 responseMessage.addDebugObject(employeeToChange);
             } catch (Exception e) {
-                responseMessage = new ResponseMessageResource(EmployeeResponseCodes.FAILED, e.getMessage());
+                responseMessage = new ResponseMessageResource(CommonResponseCodes.FAILED, e.getMessage());
             }
         } else
-            responseMessage = new ResponseMessageResource(EmployeeResponseCodes.NOT_EXISTS);
+            responseMessage = new ResponseMessageResource(CommonResponseCodes.NOT_EXISTS);
 
         return new ResponseEntity(responseMessage, HttpStatus.OK);
     }
@@ -122,18 +122,14 @@ public class EmployeeController {
 
                 employeeRepository.save(employeeToChange);
 
-                responseMessage = new ResponseMessageResource(EmployeeResponseCodes.SUCCESSFUL);
+                responseMessage = new ResponseMessageResource(CommonResponseCodes.SUCCESSFUL);
                 responseMessage.addDebugObject(employeeToChange);
                 responseMessage.addDebugObject(officeToBind);
             } catch (Exception e) {
-                responseMessage = new ResponseMessageResource(EmployeeResponseCodes.FAILED, e.getMessage());
+                responseMessage = new ResponseMessageResource(CommonResponseCodes.FAILED, e.getMessage());
             }
         } else
-            /*
-              Здесь по-хорошему нужно что-то придумать, чтобы не возвращать EmployeeResponseCodes.NOT_EXISTS
-              в случае отсутствия офиса.
-             */
-            responseMessage = new ResponseMessageResource(EmployeeResponseCodes.NOT_EXISTS);
+            responseMessage = new ResponseMessageResource(CommonResponseCodes.NOT_EXISTS);
 
         return new ResponseEntity(responseMessage, HttpStatus.OK);
     }
@@ -160,14 +156,14 @@ public class EmployeeController {
 
                 employeeRepository.save(employeeToDismiss);
 
-                ResponseMessageResource responseMessage = new ResponseMessageResource(EmployeeResponseCodes.SUCCESSFUL);
+                ResponseMessageResource responseMessage = new ResponseMessageResource(CommonResponseCodes.SUCCESSFUL);
                 responseMessage.addDebugObject(employeeToDismiss);
 
                 return responseMessage;
             } catch (Exception e) {
-                return new ResponseMessageResource(EmployeeResponseCodes.FAILED, e.getMessage());
+                return new ResponseMessageResource(CommonResponseCodes.FAILED, e.getMessage());
             }
         } else
-            return new ResponseMessageResource(EmployeeResponseCodes.NOT_EXISTS);
+            return new ResponseMessageResource(CommonResponseCodes.NOT_EXISTS);
     }
 }

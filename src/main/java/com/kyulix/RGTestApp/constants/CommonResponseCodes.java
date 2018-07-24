@@ -1,6 +1,6 @@
 package com.kyulix.RGTestApp.constants;
 
-public class EmployeeResponseCodes {
+public class CommonResponseCodes {
 
     public final static int SUCCESSFUL = 11;
     public final static int FAILED = 12;
