@@ -61,7 +61,6 @@ public class OfficeController {
                 officeRepository.save(officeToAppend);
 
                 responseMessage = new ResponseMessageResource(OfficeResponseCodes.SUCCESSFUL);
-                responseMessage.addDebugObject(officeToAppend);
                 responseMessage.add(linkTo(methodOn(OfficeController.class).show(officeToAppend.getId())).withRel("result"));
             } catch (Exception e) {
                 responseMessage = new ResponseMessageResource(OfficeResponseCodes.FAILED, e.getMessage());
@@ -93,7 +92,6 @@ public class OfficeController {
                 officeRepository.save(officeToChange);
 
                 responseMessage = new ResponseMessageResource(OfficeResponseCodes.SUCCESSFUL);
-                responseMessage.addDebugObject(officeToChange);
                 responseMessage.add(linkTo(methodOn(OfficeController.class).show(id)).withRel("result"));
             } catch (Exception e) {
                 responseMessage = new ResponseMessageResource(OfficeResponseCodes.FAILED, e.getMessage());
@@ -118,7 +116,6 @@ public class OfficeController {
                 Office office = officeRepository.findById(id).get();
 
                 responseMessage = new ResponseMessageResource(OfficeResponseCodes.SUCCESSFUL);
-                responseMessage.addDebugObject(office);
                 responseMessage.add(linkTo(methodOn(OfficeController.class).show(id)).withRel("result"));
 
                 for (String employeeId : employeesId.split(",")) {
@@ -126,8 +123,6 @@ public class OfficeController {
                         Employee employeeToAccept = employeeRepository.findById(Integer.parseInt(employeeId)).get();
                         employeeToAccept.setWorkingOffice(office);
                         employeeRepository.save(employeeToAccept);
-
-                        responseMessage.addDebugObject(employeeToAccept);
                     }
                 }
             } catch (Exception e) {
@@ -153,14 +148,11 @@ public class OfficeController {
                 officeRepository.save(officeToClose);
 
                 responseMessage = new ResponseMessageResource(OfficeResponseCodes.SUCCESSFUL);
-                responseMessage.addDebugObject(officeToClose);
                 responseMessage.add(linkTo(methodOn(OfficeController.class).show(id)).withRel("result"));
 
                 for (Employee employee : employeeRepository.getByWorkingOffice(officeToClose)) {
                     employee.setActive(false);
                     employeeRepository.save(employee);
-
-                    responseMessage.addDebugObject(employee);
                 }
             } catch (Exception e) {
                 responseMessage = new ResponseMessageResource(OfficeResponseCodes.FAILED, e.getMessage());

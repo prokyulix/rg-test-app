@@ -72,7 +72,6 @@ public class EmployeeController {
             responseMessage = new ResponseMessageResource(CommonResponseCodes.SUCCESSFUL);
             responseMessage.add(linkTo(methodOn(EmployeeController.class)
                     .show(employeeToAppend.getId())).withRel("result"));
-            responseMessage.addDebugObject(employeeToAppend);
         } catch (Exception e) {
             responseMessage = new ResponseMessageResource(CommonResponseCodes.FAILED, e.getMessage());
         }
@@ -118,7 +117,6 @@ public class EmployeeController {
                 responseMessage = new ResponseMessageResource(CommonResponseCodes.SUCCESSFUL);
                 responseMessage.add(linkTo(methodOn(EmployeeController.class)
                         .show(id)).withRel("result"));
-                responseMessage.addDebugObject(employeeToChange);
             } catch (Exception e) {
                 responseMessage = new ResponseMessageResource(CommonResponseCodes.FAILED, e.getMessage());
             }
@@ -148,8 +146,6 @@ public class EmployeeController {
 
                 responseMessage = new ResponseMessageResource(CommonResponseCodes.SUCCESSFUL);
                 responseMessage.add(linkTo(methodOn(EmployeeController.class).show(id)).withRel("result"));
-                responseMessage.addDebugObject(employeeToChange);
-                responseMessage.addDebugObject(officeToBind);
             } catch (Exception e) {
                 responseMessage = new ResponseMessageResource(CommonResponseCodes.FAILED, e.getMessage());
             }
@@ -185,7 +181,6 @@ public class EmployeeController {
                 employeeRepository.save(employee);
 
                 responseMessage = new ResponseMessageResource(CommonResponseCodes.SUCCESSFUL);
-                responseMessage.addDebugObject(employee);
                 responseMessage.add(linkTo(methodOn(EmployeeController.class).show(employeeId)).withRel("result"));
             } catch (Exception e) {
                 responseMessage = new ResponseMessageResource(CommonResponseCodes.FAILED, e.getMessage());

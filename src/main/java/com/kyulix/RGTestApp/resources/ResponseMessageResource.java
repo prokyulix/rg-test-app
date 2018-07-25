@@ -10,35 +10,26 @@ import java.util.List;
 
 public class ResponseMessageResource extends ResourceSupport {
 
-    @JsonProperty("code")
+    @JsonProperty("responseCode")
     private int responseCode;
 
-    @JsonProperty("debug_message")
-    private String debugMessage;
+    @JsonProperty("responseMessage")
+    private String responseMessage;
 
-    @JsonProperty("debug_objects")
-    private List<Object> debugObjects;
-
-    @JsonCreator
     public ResponseMessageResource(int responseCode) {
         this.responseCode = responseCode;
-        this.debugObjects = new ArrayList<Object>();
     }
 
-    public ResponseMessageResource(int responseCode, String debugMessage) {
+    public ResponseMessageResource(int responseCode, String responseMessage) {
         this(responseCode);
-        this.debugMessage = debugMessage;
-    }
-
-    public void addDebugObject(Object objectToAdd) {
-        this.debugObjects.add(objectToAdd);
+        this.responseMessage = responseMessage;
     }
 
     public int getResponseCode() {
         return this.responseCode;
     }
 
-    public String getDebugMessage() {
-        return this.debugMessage;
+    public String getResponseMessage() {
+        return this.responseMessage;
     }
 }
