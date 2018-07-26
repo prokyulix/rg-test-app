@@ -1,5 +1,6 @@
 package com.kyulix.RGTestApp.controllers;
 
+import com.kyulix.RGTestApp.RgTestAppApplication;
 import com.kyulix.RGTestApp.constants.OfficeResponseCodes;
 import com.kyulix.RGTestApp.entities.Employee;
 import com.kyulix.RGTestApp.entities.Office;
@@ -7,6 +8,8 @@ import com.kyulix.RGTestApp.repositories.EmployeeRepository;
 import com.kyulix.RGTestApp.repositories.OfficeRepository;
 import com.kyulix.RGTestApp.resources.OfficeResource;
 import com.kyulix.RGTestApp.resources.ResponseMessageResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -21,6 +24,8 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 @RestController
 @RequestMapping("/offices")
 public class OfficeController {
+
+    private static final Logger logger = LoggerFactory.getLogger(RgTestAppApplication.class);
 
     @Autowired
     private OfficeRepository officeRepository;
@@ -60,6 +65,8 @@ public class OfficeController {
                 Office officeToAppend = new Office(name, address);
                 officeRepository.save(officeToAppend);
 
+                logger.info(String.format("New Office = %s", officeToAppend.toString()));
+
                 responseMessage = new ResponseMessageResource(OfficeResponseCodes.SUCCESSFUL);
                 responseMessage.add(linkTo(methodOn(OfficeController.class).show(officeToAppend.getId())).withRel("result"));
             } catch (Exception e) {
@@ -90,6 +97,8 @@ public class OfficeController {
                     officeToChange.setAddress(address);
 
                 officeRepository.save(officeToChange);
+
+                logger.info(String.format("Changed Office = %s", officeToChange.toString()));
 
                 responseMessage = new ResponseMessageResource(OfficeResponseCodes.SUCCESSFUL);
                 responseMessage.add(linkTo(methodOn(OfficeController.class).show(id)).withRel("result"));
@@ -123,6 +132,8 @@ public class OfficeController {
                         Employee employeeToAccept = employeeRepository.findById(Integer.parseInt(employeeId)).get();
                         employeeToAccept.setWorkingOffice(office);
                         employeeRepository.save(employeeToAccept);
+
+                        logger.info(String.format("Changed Employee = %s", employeeToAccept.toString()));
                     }
                 }
             } catch (Exception e) {
@@ -147,12 +158,16 @@ public class OfficeController {
                 officeToClose.setActive(false);
                 officeRepository.save(officeToClose);
 
+                logger.info(String.format("Changed Office = %s", officeToClose.toString()));
+
                 responseMessage = new ResponseMessageResource(OfficeResponseCodes.SUCCESSFUL);
                 responseMessage.add(linkTo(methodOn(OfficeController.class).show(id)).withRel("result"));
 
                 for (Employee employee : employeeRepository.getByWorkingOffice(officeToClose)) {
                     employee.setActive(false);
                     employeeRepository.save(employee);
+
+                    logger.info(String.format("Changed Employee = %s", employee.toString()));
                 }
             } catch (Exception e) {
                 responseMessage = new ResponseMessageResource(OfficeResponseCodes.FAILED, e.getMessage());

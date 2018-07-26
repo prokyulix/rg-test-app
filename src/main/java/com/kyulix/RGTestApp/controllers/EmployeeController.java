@@ -1,5 +1,6 @@
 package com.kyulix.RGTestApp.controllers;
 
+import com.kyulix.RGTestApp.RgTestAppApplication;
 import com.kyulix.RGTestApp.constants.CommonResponseCodes;
 import com.kyulix.RGTestApp.entities.Employee;
 import com.kyulix.RGTestApp.entities.Office;
@@ -7,6 +8,8 @@ import com.kyulix.RGTestApp.repositories.EmployeeRepository;
 import com.kyulix.RGTestApp.repositories.OfficeRepository;
 import com.kyulix.RGTestApp.resources.EmployeeResource;
 import com.kyulix.RGTestApp.resources.ResponseMessageResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.http.HttpEntity;
@@ -23,6 +26,8 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 @ExposesResourceFor(Employee.class)
 @RequestMapping("/employees")
 public class EmployeeController {
+
+    private static final Logger logger = LoggerFactory.getLogger(RgTestAppApplication.class);
 
     @Autowired
     private EmployeeRepository employeeRepository;
@@ -69,6 +74,8 @@ public class EmployeeController {
 
             employeeRepository.save(employeeToAppend);
 
+            logger.info(String.format("New Employee = %s", employeeToAppend.toString()));
+
             responseMessage = new ResponseMessageResource(CommonResponseCodes.SUCCESSFUL);
             responseMessage.add(linkTo(methodOn(EmployeeController.class)
                     .show(employeeToAppend.getId())).withRel("result"));
@@ -114,6 +121,8 @@ public class EmployeeController {
 
                 employeeRepository.save(employeeToChange);
 
+                logger.info(String.format("Changed Employee = %s", employeeToChange.toString()));
+
                 responseMessage = new ResponseMessageResource(CommonResponseCodes.SUCCESSFUL);
                 responseMessage.add(linkTo(methodOn(EmployeeController.class)
                         .show(id)).withRel("result"));
@@ -143,6 +152,8 @@ public class EmployeeController {
 
                 employeeToChange.setWorkingOffice(officeToBind);
                 employeeRepository.save(employeeToChange);
+
+                logger.info(String.format("Changed Employee = %s", employeeToChange.toString()));
 
                 responseMessage = new ResponseMessageResource(CommonResponseCodes.SUCCESSFUL);
                 responseMessage.add(linkTo(methodOn(EmployeeController.class).show(id)).withRel("result"));
@@ -179,6 +190,8 @@ public class EmployeeController {
                 Employee employee = employeeRepository.findById(employeeId).get();
                 employee.setActive(activeState);
                 employeeRepository.save(employee);
+
+                logger.info(String.format("Changed Employee = %s", employee.toString()));
 
                 responseMessage = new ResponseMessageResource(CommonResponseCodes.SUCCESSFUL);
                 responseMessage.add(linkTo(methodOn(EmployeeController.class).show(employeeId)).withRel("result"));
