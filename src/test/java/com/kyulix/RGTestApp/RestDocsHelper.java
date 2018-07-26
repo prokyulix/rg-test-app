@@ -10,15 +10,15 @@ public final class RestDocsHelper {
 
         return
                 new FieldDescriptor[] {
-                    PayloadDocumentation.fieldWithPath("id").description("Employee ID"),
-                    PayloadDocumentation.fieldWithPath("firstName").description("First Name"),
-                    PayloadDocumentation.fieldWithPath("lastName").description("Last Name"),
-                    PayloadDocumentation.fieldWithPath("phoneNumber").optional().description("Phone Number"),
-                    PayloadDocumentation.fieldWithPath("position").description("Current Position"),
-                    PayloadDocumentation.fieldWithPath("active").description("Active State (working / dismissed)"),
-                    PayloadDocumentation.subsectionWithPath("workingOffice").optional().type("Office")
-                            .description("Working Office Object"),
-                    PayloadDocumentation.fieldWithPath("email").optional().description("EMail")
+                        PayloadDocumentation.fieldWithPath("id").description("Employee ID"),
+                        PayloadDocumentation.fieldWithPath("firstName").description("First Name"),
+                        PayloadDocumentation.fieldWithPath("lastName").description("Last Name"),
+                        PayloadDocumentation.fieldWithPath("phoneNumber").optional().description("Phone Number"),
+                        PayloadDocumentation.fieldWithPath("position").description("Current Position"),
+                        PayloadDocumentation.fieldWithPath("active").description("Active State (working / dismissed)"),
+                        PayloadDocumentation.subsectionWithPath("workingOffice").optional().type("Office")
+                                .description("Working Office Object"),
+                        PayloadDocumentation.fieldWithPath("email").optional().description("EMail")
                 };
     }
 

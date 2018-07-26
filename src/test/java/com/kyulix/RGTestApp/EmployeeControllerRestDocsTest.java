@@ -55,14 +55,22 @@ public class EmployeeControllerRestDocsTest {
 	@Test
 	public void showEmployees() throws Exception {
 
+		Employee employee = new Employee("John", "Doe", "SomePosition");
+		employee.setEMail("johndoe@unknownmailservice.com");
+		employee.setPhoneNumber("555-555");
+		employeeRepository.save(employee);
+
 		this.mockMvc
-				.perform(get("/employees/showAll").accept(MediaType.APPLICATION_JSON))
+				.perform(RestDocumentationRequestBuilders.get("/employees/showAll")
+						.accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
 				.andDo(MockMvcRestDocumentation.document("{class_name}/{method_name}",
 						PayloadDocumentation.responseFields()
 								.andWithPrefix("employees[]", RestDocsHelper.getEmployeeFieldDescriptors())
 								.and(PayloadDocumentation.subsectionWithPath("_links").description("Links"))
 				));
+
+		employeeRepository.delete(employee);
 	}
 
 	@Test
@@ -85,6 +93,8 @@ public class EmployeeControllerRestDocsTest {
 								.andWithPrefix("employees[]", RestDocsHelper.getEmployeeFieldDescriptors())
 								.and(PayloadDocumentation.subsectionWithPath("_links").description("Links"))
 				));
+
+		employeeRepository.delete(employee);
     }
 
     @Test
@@ -114,6 +124,8 @@ public class EmployeeControllerRestDocsTest {
 								.and(RestDocsHelper.getResponseMessageFieldDescriptors())
 								.and(PayloadDocumentation.subsectionWithPath("_links").description("Links"))
 				));
+
+		employeeRepository.delete(employee);
 	}
 
 	@Test
@@ -152,6 +164,9 @@ public class EmployeeControllerRestDocsTest {
 								.and(RestDocsHelper.getResponseMessageFieldDescriptors())
 								.and(PayloadDocumentation.subsectionWithPath("_links").description("Links"))
 				));
+
+		employeeRepository.delete(employee);
+		employeeRepository.delete(employeeToChange);
 	}
 
 	@Test
@@ -179,6 +194,9 @@ public class EmployeeControllerRestDocsTest {
 								.and(RestDocsHelper.getResponseMessageFieldDescriptors())
 								.and(PayloadDocumentation.subsectionWithPath("_links").description("Links"))
 				));
+
+		employeeRepository.delete(employee);
+		officeRepository.delete(office);
 	}
 
 	@Test
@@ -201,6 +219,8 @@ public class EmployeeControllerRestDocsTest {
 								.and(RestDocsHelper.getResponseMessageFieldDescriptors())
 								.and(PayloadDocumentation.subsectionWithPath("_links").description("Links"))
 				));
+
+		employeeRepository.delete(employee);
 	}
 
 	@Test
@@ -222,5 +242,7 @@ public class EmployeeControllerRestDocsTest {
 								.and(RestDocsHelper.getResponseMessageFieldDescriptors())
 								.and(PayloadDocumentation.subsectionWithPath("_links").description("Links"))
 				));
+
+		employeeRepository.delete(employee);
 	}
 }
