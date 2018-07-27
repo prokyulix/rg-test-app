@@ -10,4 +10,4 @@ RusGIS Test Application
 Documentation will be available at **http://localhost:8080/api/docs/index.html**
  
 # Contacts
-mailto: prokyulix at gmail dot com\
+mailto: prokyulix at gmail dot com
