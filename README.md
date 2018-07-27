@@ -11,4 +11,3 @@ Documentation will be available at **http://localhost:8080/api/docs/index.html**
  
 # Contacts
 mailto: prokyulix at gmail dot com\
-telegram: @kyulix (http://t.me/kyulix)
